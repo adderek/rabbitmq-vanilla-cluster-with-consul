@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  mq:
+    # You might consider another type of node to create the cluster
+    # Otherwise first to lock consul would init the cluster and other would join after it is ready
+    # Normally rabbitmq_management is not needed on every node
+    #  only one instance should have itt while others should use rabbitmq_management_agent
+    image: rabbitmq:3.9
+    deploy:
+      replicas: 3
+    volumes:
+      - ./mq.conf:/etc/rabbitmq/conf.d/mq.conf:ro
+      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
+      # - ./erlang.cookie:/var/lib/rabbitmq/.erlang.cookie:ro  # Would fail on access change as RO
+    ports:
+      - "15672-15674:15672"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "kukie"  # deprecated
+  consul:
+    image: consul:latest
+    ports:
+      - "8500:8500"
+
+# vim: ts=2 sw=2 sts=2 expandtab si:
